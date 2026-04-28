@@ -1,12 +1,10 @@
 from flask import Flask, request, jsonify, send_from_directory
-from openai import OpenAI
-import os, json
+import os, json, requests as req
 
 app = Flask(__name__, static_folder='static')
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-    base_url="https://api.openai.com/v1"
-)
+
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 
 # In-memory session store
 sessions = {}
@@ -81,13 +79,22 @@ def chat():
     history = [sessions[session_id][0]] + sessions[session_id][-19:]
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=history,
-            max_tokens=300,
-            temperature=0.7
+        r = req.post(
+            OPENAI_URL,
+            headers={
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gpt-4o-mini",
+                "messages": history,
+                "max_tokens": 300,
+                "temperature": 0.7
+            },
+            timeout=30
         )
-        reply = response.choices[0].message.content
+        r.raise_for_status()
+        reply = r.json()["choices"][0]["message"]["content"]
         sessions[session_id].append({"role": "assistant", "content": reply})
 
         resp = jsonify({'response': reply, 'sessionId': session_id})
