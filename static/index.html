@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Fit Gym — Chat with Alex</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .logo span { color: #e63946; }
+  .tagline { color: #aaa; font-size: 0.9rem; margin-top: 4px; }
+  .chat-container {
+    width: 100%;
+    max-width: 480px;
+    background: #1a1a2e;
+    border-radius: 20px;
+    border: 1px solid #2d2d4e;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 580px;
+  }
+  .chat-header {
+    background: linear-gradient(90deg, #e63946, #c1121f);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .chat-header-info h3 { color: #fff; font-size: 1rem; font-weight: 700; }
+  .chat-header-info p { color: rgba(255,255,255,0.8); font-size: 0.75rem; }
+  .online-dot {
+    width: 8px; height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #2d2d4e transparent;
+  }
+  .message {
+    display: flex;
+    gap: 8px;
+    max-width: 85%;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .message.user { align-self: flex-end; flex-direction: row-reverse; }
+  .message-bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .message.bot .message-bubble {
+    background: #2d2d4e;
+    color: #e0e0e0;
+    border-bottom-left-radius: 4px;
+  }
+  .message.user .message-bubble {
+    background: linear-gradient(135deg, #e63946, #c1121f);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .typing-indicator {
+    display: flex; gap: 4px; align-items: center; padding: 10px 14px;
+    background: #2d2d4e; border-radius: 16px; border-bottom-left-radius: 4px;
+    width: fit-content;
+  }
+  .typing-dot {
+    width: 7px; height: 7px; background: #888;
+    border-radius: 50%; animation: bounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .quick-replies {
+    padding: 8px 20px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .quick-btn {
+    background: transparent;
+    border: 1px solid #e63946;
+    color: #e63946;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quick-btn:hover { background: #e63946; color: #fff; }
+  .input-area {
+    padding: 16px 20px;
+    border-top: 1px solid #2d2d4e;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .input-area input {
+    flex: 1;
+    background: #2d2d4e;
+    border: 1px solid #3d3d5e;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 25px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .input-area input:focus { border-color: #e63946; }
+  .input-area input::placeholder { color: #666; }
+  .send-btn {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, #e63946, #c1121f);
+    border: none; border-radius: 50%;
+    color: #fff; font-size: 1rem;
+    cursor: pointer; transition: transform 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .send-btn:hover { transform: scale(1.1); }
+  .powered-by {
+    text-align: center;
+    margin-top: 12px;
+    color: #555;
+    font-size: 0.72rem;
+  }
+  .powered-by a { color: #e63946; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">Elite <span>Fit</span> Gym</div>
+  <div class="tagline">Central London's Premier Fitness Centre</div>
+</div>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="avatar">💪</div>
+    <div class="chat-header-info">
+      <h3>Alex — Gym Assistant</h3>
+      <p><span class="online-dot"></span>Online now · Replies instantly</p>
+    </div>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="message bot">
+      <div class="message-bubble">
+        Hey there! 👋 I'm Alex, your Elite Fit Gym assistant. Whether you're curious about memberships, classes, or want to book a <strong>FREE 1-day trial</strong>, I'm here to help. What can I do for you today?
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-replies" id="quickReplies">
+    <button class="quick-btn" onclick="sendQuick('What are your membership prices?')">💳 Membership prices</button>
+    <button class="quick-btn" onclick="sendQuick('What are your opening hours?')">🕐 Opening hours</button>
+    <button class="quick-btn" onclick="sendQuick('Do you offer a free trial?')">🎁 Free trial</button>
+    <button class="quick-btn" onclick="sendQuick('What group classes do you have?')">🏋️ Group classes</button>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Type your question..." onkeypress="handleKey(event)">
+    <button class="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<div class="powered-by">
+  Demo powered by <a href="#">Digital Brand Artistry</a> · AI Chatbot Solutions for UK Businesses
+</div>
+
+<script>
+  const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+  let isTyping = false;
+
+  function handleKey(e) {
+    if (e.key === 'Enter') sendMessage();
+  }
+
+  function sendQuick(text) {
+    document.getElementById('quickReplies').style.display = 'none';
+    document.getElementById('userInput').value = text;
+    sendMessage();
+  }
+
+  function addMessage(text, sender) {
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'message ' + sender;
+    div.innerHTML = '<div class="message-bubble">' + text.replace(/\n/g, '<br>') + '</div>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'message bot';
+    div.id = 'typing';
+    div.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text || isTyping) return;
+    input.value = '';
+    isTyping = true;
+    addMessage(text, 'user');
+    showTyping();
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: text, sessionId})
+      });
+      const data = await res.json();
+      removeTyping();
+      addMessage(data.response || 'Sorry, I had trouble with that. Please try again!', 'bot');
+    } catch(e) {
+      removeTyping();
+      addMessage('Sorry, something went wrong. Please try again!', 'bot');
+    }
+    isTyping = false;
+  }
+</script>
+</body>
+</html>
